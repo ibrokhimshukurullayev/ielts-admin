@@ -17,13 +17,17 @@ function avatarStyle(name) {
   return AVATAR_PALETTES[Math.abs(code) % AVATAR_PALETTES.length];
 }
 
+function resolveAvatarUrl(avatarUrl) {
+  return /^https?:\/\//.test(avatarUrl) ? avatarUrl : `${API_BASE_URL}${avatarUrl}`;
+}
+
 function Avatar({ name, avatarUrl, size = 32 }) {
   const { bg, color } = avatarStyle(name);
   if (avatarUrl) {
     return (
       <img
         className="avatar"
-        src={`${API_BASE_URL}${avatarUrl}`}
+        src={resolveAvatarUrl(avatarUrl)}
         alt={name}
         style={{ width: size, height: size, objectFit: "cover" }}
       />
@@ -469,7 +473,7 @@ export function Teachers() {
                       {t.avatarUrl ? (
                         <img
                           className="avatar"
-                          src={`${API_BASE_URL}${t.avatarUrl}`}
+                          src={resolveAvatarUrl(t.avatarUrl)}
                           alt={t.name}
                           style={{ width: 38, height: 38, objectFit: "cover" }}
                         />
