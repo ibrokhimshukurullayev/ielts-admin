@@ -74,11 +74,10 @@ function TestBar({ skill, count, total }) {
   );
 }
 
-const TODAY = new Date().toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" });
-
 export function Dashboard() {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
+  const today = new Date().toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" });
 
   useEffect(() => {
     adminFetch("/api/admin/stats")
@@ -97,7 +96,7 @@ export function Dashboard() {
       <div className="page-header">
         <div>
           <h1>Dashboard</h1>
-          <p className="muted">{TODAY}</p>
+          <p className="muted">{today}</p>
         </div>
       </div>
 

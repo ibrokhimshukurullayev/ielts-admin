@@ -1,47 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { adminFetch, adminUpload } from "../lib/api";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const AVATAR_PALETTES = [
-  { bg: "#e0e7ff", color: "#3730a3" },
-  { bg: "#dcfce7", color: "#166534" },
-  { bg: "#fce7f3", color: "#9d174d" },
-  { bg: "#fed7aa", color: "#9a3412" },
-  { bg: "#dbeafe", color: "#1e40af" },
-  { bg: "#f3e8ff", color: "#7e22ce" },
-];
-
-function avatarStyle(name) {
-  const code = (name?.toUpperCase().charCodeAt(0) ?? 65) - 65;
-  return AVATAR_PALETTES[Math.abs(code) % AVATAR_PALETTES.length];
-}
-
-function resolveAvatarUrl(avatarUrl) {
-  return /^https?:\/\//.test(avatarUrl) ? avatarUrl : `${API_BASE_URL}${avatarUrl}`;
-}
-
-function Avatar({ name, avatarUrl, size = 32 }) {
-  const { bg, color } = avatarStyle(name);
-  if (avatarUrl) {
-    return (
-      <img
-        className="avatar"
-        src={resolveAvatarUrl(avatarUrl)}
-        alt={name}
-        style={{ width: size, height: size, objectFit: "cover" }}
-      />
-    );
-  }
-  return (
-    <span
-      className="avatar"
-      style={{ background: bg, color, width: size, height: size, fontSize: size * 0.34 + "px" }}
-    >
-      {name?.[0]?.toUpperCase() ?? "?"}
-    </span>
-  );
-}
+import { Avatar } from "../components/Avatar";
 
 function GroupCard({ group, teacherStudents, onRenamed, onDeleted, onMembersChanged }) {
   const [renaming, setRenaming] = useState(false);
@@ -105,8 +64,10 @@ function GroupCard({ group, teacherStudents, onRenamed, onDeleted, onMembersChan
     } catch (e) { setErr(e.message); }
   };
 
-  const memberIds = new Set(group.members.map((m) => m.student.id));
-  const available = teacherStudents.filter((s) => !memberIds.has(s.id));
+  const available = useMemo(() => {
+    const memberIds = new Set(group.members.map((m) => m.student.id));
+    return teacherStudents.filter((s) => !memberIds.has(s.id));
+  }, [group.members, teacherStudents]);
 
   return (
     <div className="grp-card">
@@ -458,7 +419,6 @@ export function Teachers() {
         <div className="teacher-list">
           {teachers.map((t) => {
             const isOpen = expanded === t.id;
-            const { bg, color } = avatarStyle(t.name);
             return (
               <div key={t.id} className={`teacher-card${isOpen ? " teacher-card--open" : ""}`}>
                 <div
@@ -470,18 +430,7 @@ export function Teachers() {
                 >
                   <div className="teacher-identity">
                     <div className="teacher-avatar-wrap">
-                      {t.avatarUrl ? (
-                        <img
-                          className="avatar"
-                          src={resolveAvatarUrl(t.avatarUrl)}
-                          alt={t.name}
-                          style={{ width: 38, height: 38, objectFit: "cover" }}
-                        />
-                      ) : (
-                        <span className="avatar" style={{ background: bg, color, width: 38, height: 38, fontSize: "1rem" }}>
-                          {t.name?.[0]?.toUpperCase()}
-                        </span>
-                      )}
+                      <Avatar name={t.name} avatarUrl={t.avatarUrl} size={38} />
                       <button
                         type="button"
                         className="avatar-upload-btn"

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { adminFetch, adminUpload } from "../lib/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -184,12 +184,14 @@ export function TestsBySkill({ skill }) {
     load();
   };
 
+  const editingTitle = useMemo(() => {
+    if (!HAS_TEXT_FIELDS(skill)) return form.title;
+    try { return JSON.parse(jsonText).title || ""; } catch { return ""; }
+  }, [skill, jsonText, form.title]);
+
   if (error) return <p className="error">{error}</p>;
 
   const label = SKILL_LABELS[skill];
-  const editingTitle = HAS_TEXT_FIELDS(skill)
-    ? (() => { try { return JSON.parse(jsonText).title || ""; } catch { return ""; } })()
-    : form.title;
 
   return (
     <div className="page">

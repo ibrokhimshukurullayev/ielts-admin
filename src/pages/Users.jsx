@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { adminFetch } from "../lib/api";
+import { avatarStyle } from "../components/Avatar";
 
 const SKILL_COLORS = {
   reading:   { bg: "#dbeafe", color: "#1d4ed8" },
@@ -7,20 +8,6 @@ const SKILL_COLORS = {
   writing:   { bg: "#fef3c7", color: "#b45309" },
   speaking:  { bg: "#fce7f3", color: "#be185d" },
 };
-
-const AVATAR_PALETTES = [
-  { bg: "#e0e7ff", color: "#3730a3" },
-  { bg: "#dcfce7", color: "#166534" },
-  { bg: "#fce7f3", color: "#9d174d" },
-  { bg: "#fed7aa", color: "#9a3412" },
-  { bg: "#dbeafe", color: "#1e40af" },
-  { bg: "#f3e8ff", color: "#7e22ce" },
-];
-
-function avatarStyle(name) {
-  const code = (name?.toUpperCase().charCodeAt(0) ?? 65) - 65;
-  return AVATAR_PALETTES[Math.abs(code) % AVATAR_PALETTES.length];
-}
 
 function BandChip({ skill, band }) {
   const c = SKILL_COLORS[skill] ?? { bg: "#f1f5f9", color: "#64748b" };
@@ -70,10 +57,12 @@ export function Users() {
     return list;
   }, [users, search, filterTeacher]);
 
-  if (error) return <p className="error" style={{ padding: "2rem" }}>{error}</p>;
+  const { unassigned, withAttempts } = useMemo(() => ({
+    unassigned: users.filter((u) => !u.teacherId).length,
+    withAttempts: users.filter((u) => u.attemptCount > 0).length,
+  }), [users]);
 
-  const unassigned   = users.filter((u) => !u.teacherId).length;
-  const withAttempts = users.filter((u) => u.attemptCount > 0).length;
+  if (error) return <p className="error" style={{ padding: "2rem" }}>{error}</p>;
 
   return (
     <div className="page">
